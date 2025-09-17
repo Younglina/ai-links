@@ -1,0 +1,11 @@
+html, body {
+  height: 100%;
+}
+html, body , p{
+  margin: 0;
+  padding: 0;
+}
+
+.ant-menu-light.ant-menu-root.ant-menu-inline{
+  border: unset
+}
