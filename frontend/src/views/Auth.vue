@@ -310,23 +310,24 @@ const handleRegister = async (values) => {
 }
 
 const handleGitHubLogin = async () => {
-  try {
-    loading.value = true
+  window.location.href = 'https://github.com/login/oauth/authorize?client_id=Ov23lipVOcXkiYvfCxOZ&scope=user:email&redirect_uri=http://localhost:5173'
+  // try {
+  //   loading.value = true
     
-    // 调用store GitHub登录方法
-    const result = await userStore.loginWithGitHub()
+  //   // 调用store GitHub登录方法
+  //   const result = await userStore.loginWithGitHub()
     
-    if (result.success) {
-      message.success(result.message)
-      router.push('/')
-    } else {
-      message.error(result.message)
-    }
-  } catch (error) {
-    message.error('GitHub登录失败，请重试')
-  } finally {
-    loading.value = false
-  }
+  //   if (result.success) {
+  //     message.success(result.message)
+  //     router.push('/')
+  //   } else {
+  //     message.error(result.message)
+  //   }
+  // } catch (error) {
+  //   message.error('GitHub登录失败，请重试')
+  // } finally {
+  //   loading.value = false
+  // }
 }
 </script>
 

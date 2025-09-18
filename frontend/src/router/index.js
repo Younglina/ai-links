@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '../stores/user.js'
 
 // 导入页面组件
 const Home = () => import('../views/Home.vue')
@@ -72,7 +73,32 @@ const router = createRouter({
 })
 
 // 全局前置守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
+  // 处理GitHub OAuth回调
+  if (to.path === '/' && to.query.code) {
+    const userStore = useUserStore()
+    
+    try {
+      const result = await userStore.loginWithGitHub(to.query.code)
+      
+      if (result.success) {
+        // 登录成功，清除URL中的code参数并跳转到仪表板
+        console.log('GitHub登录成功:', result.message)
+        next({ path: '/dashboard', replace: true })
+        return
+      } else {
+        // 登录失败，清除URL中的code参数并显示错误
+        console.error('GitHub登录失败:', result.message)
+        next({ path: '/', query: {}, replace: true })
+        return
+      }
+    } catch (error) {
+      console.error('GitHub登录处理错误:', error)
+      next({ path: '/', query: {}, replace: true })
+      return
+    }
+  }
+  
   // 设置页面标题
   if (to.meta.title) {
     document.title = `${to.meta.title} - AI Links`

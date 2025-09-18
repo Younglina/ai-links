@@ -1,0 +1,11 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ai-links
+    environment:
+      MYSQL_ROOT_PASSWORD: wangzhiqiang.1
+    ports:
+      - "3306:3306"
+    volumes:
+      - ~/mysql-ailnks-data:/var/lib/mysql
+    restart: unless-stopped

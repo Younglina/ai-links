@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { authAPI } from '../api/api.js'
 
 export const useUserStore = defineStore('user', () => {
   // 状态
@@ -17,8 +18,7 @@ export const useUserStore = defineStore('user', () => {
   // 登录方法
   const login = async (credentials) => {
     try {
-      // 模拟API调用
-      const response = await mockLogin(credentials)
+      const response = await authAPI.login(credentials)
       
       if (response.success) {
         user.value = response.user
@@ -26,21 +26,20 @@ export const useUserStore = defineStore('user', () => {
         isLoggedIn.value = true
         loginTime.value = new Date().toISOString()
         
-        return { success: true, message: '登录成功' }
+        return { success: true, message: response.message || '登录成功' }
       } else {
         return { success: false, message: response.message || '登录失败' }
       }
     } catch (error) {
       console.error('登录错误:', error)
-      return { success: false, message: '网络错误，请稍后重试' }
+      return { success: false, message: error.message || '网络错误，请稍后重试' }
     }
   }
 
   // 注册方法
   const register = async (userData) => {
     try {
-      // 模拟API调用
-      const response = await mockRegister(userData)
+      const response = await authAPI.register(userData)
       
       if (response.success) {
         user.value = response.user
@@ -48,21 +47,20 @@ export const useUserStore = defineStore('user', () => {
         isLoggedIn.value = true
         loginTime.value = new Date().toISOString()
         
-        return { success: true, message: '注册成功' }
+        return { success: true, message: response.message || '注册成功' }
       } else {
         return { success: false, message: response.message || '注册失败' }
       }
     } catch (error) {
       console.error('注册错误:', error)
-      return { success: false, message: '网络错误，请稍后重试' }
+      return { success: false, message: error.message || '网络错误，请稍后重试' }
     }
   }
 
   // GitHub登录方法
-  const loginWithGitHub = async () => {
+  const loginWithGitHub = async (code) => {
     try {
-      // 模拟GitHub OAuth流程
-      const response = await mockGitHubLogin()
+      const response = await authAPI.loginWithGitHub(code)
       
       if (response.success) {
         user.value = response.user
@@ -70,13 +68,13 @@ export const useUserStore = defineStore('user', () => {
         isLoggedIn.value = true
         loginTime.value = new Date().toISOString()
         
-        return { success: true, message: 'GitHub登录成功' }
+        return { success: true, message: response.message || 'GitHub登录成功' }
       } else {
         return { success: false, message: response.message || 'GitHub登录失败' }
       }
     } catch (error) {
       console.error('GitHub登录错误:', error)
-      return { success: false, message: 'GitHub登录失败，请稍后重试' }
+      return { success: false, message: error.message || 'GitHub登录失败，请稍后重试' }
     }
   }
 
@@ -89,14 +87,28 @@ export const useUserStore = defineStore('user', () => {
   }
 
   // 更新用户信息
-  const updateUserInfo = (newUserInfo) => {
-    if (user.value) {
-      user.value = { ...user.value, ...newUserInfo }
+  const updateUserInfo = async (newUserInfo) => {
+    try {
+      if (!user.value) {
+        return { success: false, message: '用户未登录' }
+      }
+
+      const response = await authAPI.updateUser(newUserInfo)
+      
+      if (response.success) {
+        user.value = { ...user.value, ...response.user }
+        return { success: true, message: response.message || '更新成功' }
+      } else {
+        return { success: false, message: response.message || '更新失败' }
+      }
+    } catch (error) {
+      console.error('更新用户信息错误:', error)
+      return { success: false, message: error.message || '网络错误，请稍后重试' }
     }
   }
 
   // 检查token是否有效
-  const checkTokenValidity = () => {
+  const checkTokenValidity = async () => {
     if (!token.value || !loginTime.value) {
       logout()
       return false
@@ -111,7 +123,6 @@ export const useUserStore = defineStore('user', () => {
       logout()
       return false
     }
-    
     return true
   }
 
@@ -143,63 +154,3 @@ export const useUserStore = defineStore('user', () => {
     paths: ['user', 'token', 'isLoggedIn', 'loginTime']
   }
 })
-
-// 模拟API函数
-async function mockLogin(credentials) {
-  // 模拟网络延迟
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  
-  // 模拟登录验证
-  if (credentials.email === 'test@example.com' && credentials.password === '123456') {
-    return {
-      success: true,
-      user: {
-        id: 1,
-        name: '测试用户',
-        email: credentials.email,
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test'
-      },
-      token: 'mock-jwt-token-' + Date.now()
-    }
-  } else {
-    return {
-      success: false,
-      message: '邮箱或密码错误'
-    }
-  }
-}
-
-async function mockRegister(userData) {
-  // 模拟网络延迟
-  await new Promise(resolve => setTimeout(resolve, 1200))
-  
-  // 模拟注册
-  return {
-    success: true,
-    user: {
-      id: Date.now(),
-      name: userData.name || userData.email.split('@')[0],
-      email: userData.email,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.email}`
-    },
-    token: 'mock-jwt-token-' + Date.now()
-  }
-}
-
-async function mockGitHubLogin() {
-  // 模拟网络延迟
-  await new Promise(resolve => setTimeout(resolve, 800))
-  
-  // 模拟GitHub登录
-  return {
-    success: true,
-    user: {
-      id: Date.now(),
-      name: 'GitHub用户',
-      email: 'github@example.com',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=github',
-      provider: 'github'
-    },
-    token: 'mock-github-token-' + Date.now()
-  }
-}
