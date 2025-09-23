@@ -12,6 +12,7 @@ class User(db.Model):
     avatar = db.Column(db.String(255), nullable=True)
     provider = db.Column(db.String(50), default='local')  # local, github
     provider_id = db.Column(db.String(100), nullable=True)  # 第三方平台的用户ID
+    role = db.Column(db.String(20), default='user', nullable=False)  # user, admin
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
@@ -26,6 +27,18 @@ class User(db.Model):
             return False
         return check_password_hash(self.password_hash, password)
     
+    def is_admin(self):
+        """检查是否为管理员"""
+        return self.role == 'admin'
+    
+    def set_role(self, role):
+        """设置用户角色"""
+        if role in ['user', 'admin']:
+            self.role = role
+            self.updated_at = datetime.utcnow()
+        else:
+            raise ValueError("Invalid role. Must be 'user' or 'admin'")
+    
     def to_dict(self):
         """转换为字典格式"""
         return {
@@ -34,6 +47,8 @@ class User(db.Model):
             'email': self.email,
             'avatar': self.avatar,
             'provider': self.provider,
+            'role': self.role,
+            'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
