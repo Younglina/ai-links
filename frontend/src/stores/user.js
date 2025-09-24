@@ -14,6 +14,7 @@ export const useUserStore = defineStore('user', () => {
   const isAuthenticated = computed(() => isLoggedIn.value && !!token.value)
   const userName = computed(() => user.value?.name || user.value?.email || '用户')
   const userAvatar = computed(() => user.value?.avatar || '')
+  const isAdmin = computed(() => user.value?.role === 'admin')
 
   // 登录方法
   const login = async (credentials) => {
@@ -138,6 +139,7 @@ export const useUserStore = defineStore('user', () => {
     isAuthenticated,
     userName,
     userAvatar,
+    isAdmin,
     
     // 方法
     login,

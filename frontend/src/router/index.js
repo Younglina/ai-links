@@ -7,6 +7,8 @@ const About = () => import('../views/About.vue')
 const Dashboard = () => import('../views/Dashboard.vue')
 const Auth = () => import('../views/Auth.vue')
 const Detail = () => import('../views/Detail.vue')
+const Tools = () => import('../views/Tools.vue')
+const ToolDetail = () => import('../views/ToolDetail.vue')
 const NotFound = () => import('../views/NotFound.vue')
 
 // 路由配置
@@ -51,6 +53,24 @@ const routes = [
     component: Detail,
     meta: {
       title: '工具详情'
+    }
+  },
+  {
+    path: '/tools',
+    name: 'Tools',
+    component: Tools,
+    meta: {
+      title: '工具管理',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/tools/:uuid',
+    name: 'ToolDetail',
+    component: ToolDetail,
+    meta: {
+      title: '工具详情',
+      requiresAuth: true
     }
   },
   {

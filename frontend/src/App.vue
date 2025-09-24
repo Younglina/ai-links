@@ -44,6 +44,12 @@
           </template>
           仪表板
         </a-menu-item>
+        <a-menu-item key="tools" @click="$router.push('/tools')" v-if="userStore.isAuthenticated">
+          <template #icon>
+            <i class="i-carbon-tool-kit text-lg"></i>
+          </template>
+          工具管理
+        </a-menu-item>
       </a-menu>
     </a-layout-sider>
     

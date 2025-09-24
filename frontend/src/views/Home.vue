@@ -26,10 +26,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import AiCard from '../components/ai-card.vue'
+import { toolsAPI, adminAPI } from '@/api/api'
 
 const router = useRouter()
 
@@ -83,6 +84,19 @@ const handleAiClick = (aiData) => {
   // 这里可以跳转到详情页
   // router.push(`/ai-detail/${aiData.id}`)
 }
+
+const getAiList = async () => {
+  try {
+    const response = await toolsAPI.getList()
+    aiList.value = [...aiList.value, ...response.tools]
+  } catch (error) {
+    message.error('获取AI列表失败：' + error.message)
+  }
+}
+
+onMounted(()=>{
+  getAiList()
+})
 </script>
 
 <style scoped>

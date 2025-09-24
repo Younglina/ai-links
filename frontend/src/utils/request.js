@@ -12,14 +12,12 @@ const request = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
   config => {
-    // 在发送请求之前做些什么
-    // 添加JWT token到请求头
-    const token = localStorage.getItem('ai-links-user')
-    if (token) {
+    const userData = localStorage.getItem('ai-links-user')
+    if (userData) {
       try {
-        const userData = JSON.parse(token)
-        if (userData.token) {
-          config.headers.Authorization = `Bearer ${userData.token}`
+        const userDataJson = JSON.parse(userData)
+        if (userDataJson.token) {
+          config.headers.Authorization = `Bearer ${userDataJson.token}`
         }
       } catch (error) {
         console.error('解析token失败:', error)
@@ -48,7 +46,7 @@ request.interceptors.response.use(
       // 清除本地存储的用户信息
       localStorage.removeItem('ai-links-user')
       // 可以在这里触发登出逻辑或跳转到登录页
-      window.location.href = '/login'
+      window.location.href = '/auth'
     }
     
     return Promise.reject(error.response?.data || error)
